@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: repairhub-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: repairhub-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+databases:
+  - name: repairhub-db
+    databaseName: repairhub_db
+    user: repairhub_user
+    plan: free
