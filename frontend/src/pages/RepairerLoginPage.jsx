@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Mail, User, Phone, MapPin, ArrowRight, AlertCircle, Wrench } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, User, Phone, MapPin, ArrowRight, AlertCircle, Wrench, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function RepairerLoginPage({ setActivePage }) {
@@ -9,6 +9,8 @@ export default function RepairerLoginPage({ setActivePage }) {
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [serviceCategories, setServiceCategories] = useState('Mobile Repair, Laptop Repair, Computer Repair');
@@ -24,6 +26,11 @@ export default function RepairerLoginPage({ setActivePage }) {
 
     try {
       if (isRegisterMode) {
+        if (password !== confirmPassword) {
+          setError('Passwords do not match.');
+          setLoading(false);
+          return;
+        }
         await register({
           name,
           email,
@@ -207,16 +214,44 @@ export default function RepairerLoginPage({ setActivePage }) {
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              id="input-repairer-password"
-            />
+            <div className="input-with-action">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="form-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                id="input-repairer-password"
+              />
+              <button
+                type="button"
+                className="input-action-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
+
+          {isRegisterMode && (
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <div className="input-with-action">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  id="input-repairer-confirm-password"
+                />
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

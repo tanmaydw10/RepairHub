@@ -273,6 +273,13 @@ export async function initDb() {
             [rev.id, rev.request_id, rev.customer_id, rev.repairer_id, rev.rating, rev.review, rev.created_at]
           );
         }
+        // Synchronize sequences to avoid duplicate key issues on subsequent inserts
+        try {
+          await client.query(`SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));`);
+          await client.query(`SELECT setval('repairers_id_seq', COALESCE((SELECT MAX(id) FROM repairers), 1));`);
+        } catch (seqErr) {
+          // Ignore if sequence names differ
+        }
         console.log('✅ [Database] PostgreSQL seeded successfully.');
       }
     }

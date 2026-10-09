@@ -94,6 +94,28 @@ export default function Footer({ onCategoryClick, setActivePage }) {
             </li>
             <li>
               <button
+                onClick={() => setActivePage('login')}
+                style={{ color: '#94a3b8', fontSize: '0.875rem' }}
+                onMouseEnter={(e) => e.target.style.color = '#ffffff'}
+                onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                id="footer-link-signin"
+              >
+                Sign In
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActivePage('register')}
+                style={{ color: '#94a3b8', fontSize: '0.875rem' }}
+                onMouseEnter={(e) => e.target.style.color = '#ffffff'}
+                onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                id="footer-link-register"
+              >
+                Create Account
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => setActivePage('repairer-login')}
                 style={{ color: '#94a3b8', fontSize: '0.875rem' }}
                 onMouseEnter={(e) => e.target.style.color = '#ffffff'}

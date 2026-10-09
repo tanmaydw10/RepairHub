@@ -4,38 +4,89 @@ import { userRepository, repairerRepository } from '../models/dbRepository.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'repairhub_dev_secret_key_change_in_production_32char';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function register(req, res, next) {
   try {
-    const { name, email, password, role = 'customer', phone = '', address = '', service_categories, service_area, bio } = req.body;
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+      role = 'customer',
+      phone = '',
+      address = '',
+      service_categories,
+      service_area,
+      bio
+    } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
+      return res.status(400).json({
+        success: false,
+        message: 'Full name, email address, and password are required.'
+      });
     }
 
-    const existingUser = await userRepository.findByEmail(email);
+    const trimmedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (trimmedName.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Full name must be at least 2 characters.'
+      });
+    }
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid email address.'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long.'
+      });
+    }
+
+    if (confirmPassword !== undefined && password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password confirmation does not match password.'
+      });
+    }
+
+    const existingUser = await userRepository.findByEmail(normalizedEmail);
     if (existingUser) {
-      return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email address already exists. Please sign in instead.'
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    // Strict RBAC: users can only register as customer or repairer, never admin
     const validRole = role === 'repairer' ? 'repairer' : 'customer';
 
     const newUser = await userRepository.create({
-      name,
-      email,
+      name: trimmedName,
+      email: normalizedEmail,
       password: hashedPassword,
       role: validRole,
-      phone,
-      address
+      phone: phone ? phone.trim() : '',
+      address: address ? address.trim() : ''
     });
 
     if (validRole === 'repairer') {
       await repairerRepository.updateProfile(newUser.id, {
-        name,
-        phone,
+        name: trimmedName,
+        phone: phone ? phone.trim() : '',
         service_categories: service_categories || 'All Categories',
         service_area: service_area || 'Citywide',
-        bio: bio || 'Professional repair technician.'
+        bio: bio || 'Professional certified repair technician.'
       });
     }
 
@@ -71,7 +122,8 @@ export async function login(req, res, next) {
       return res.status(400).json({ success: false, message: 'Email and password are required.' });
     }
 
-    const user = await userRepository.findByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await userRepository.findByEmail(normalizedEmail);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password credentials.' });
     }

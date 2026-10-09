@@ -24,12 +24,14 @@ export const userRepository = {
   },
 
   async create({ name, email, password, role = 'customer', phone = '', address = '' }) {
+    const cleanName = (name || '').trim();
+    const cleanEmail = (email || '').trim().toLowerCase();
     if (db.isPostgres()) {
       const res = await db.query(
         `INSERT INTO users (name, email, password, role, phone, address)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id, name, email, role, phone, address, created_at`,
-        [name, email, password, role, phone, address]
+        [cleanName, cleanEmail, password, role, phone, address]
       );
       return res.rows[0];
     }
@@ -37,8 +39,8 @@ export const userRepository = {
     const newId = store.users.length ? Math.max(...store.users.map(u => u.id)) + 1 : 1;
     const newUser = {
       id: newId,
-      name,
-      email,
+      name: cleanName,
+      email: cleanEmail,
       password,
       role,
       phone,
@@ -84,6 +86,24 @@ export const repairerRepository = {
   async updateProfile(userId, { name, phone, service_categories, service_area, bio }) {
     const numId = parseInt(userId, 10);
     if (db.isPostgres()) {
+      const existing = await db.query('SELECT id FROM repairers WHERE user_id = $1', [numId]);
+      if (existing.rows.length === 0) {
+        const insertRes = await db.query(
+          `INSERT INTO repairers (user_id, name, phone, service_categories, service_area, bio)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING *`,
+          [
+            numId,
+            name || 'Technician',
+            phone || '',
+            service_categories || 'All Categories',
+            service_area || 'Citywide',
+            bio || 'Professional repair technician.'
+          ]
+        );
+        return insertRes.rows[0];
+      }
+
       const res = await db.query(
         `UPDATE repairers 
          SET name = COALESCE($1, name),

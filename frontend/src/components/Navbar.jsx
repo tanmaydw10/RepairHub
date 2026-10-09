@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wrench, Sparkles, Search, User, ShieldCheck, LogOut, ArrowRight, Menu, X } from 'lucide-react';
+import { Wrench, Sparkles, Search, User, ShieldCheck, LogOut, ArrowRight, Menu, X, LogIn, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ activePage, setActivePage }) {
@@ -8,6 +8,12 @@ export default function Navbar({ activePage, setActivePage }) {
 
   const navigateTo = (page) => {
     setActivePage(page);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setActivePage('landing');
     setMobileMenuOpen(false);
   };
 
@@ -83,8 +89,9 @@ export default function Navbar({ activePage, setActivePage }) {
         {/* Auth / Action Buttons */}
         <div className="nav-actions">
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <button
+                onClick={() => setActivePage(isRepairer ? 'repairer-dashboard' : 'customer-profile')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -94,39 +101,43 @@ export default function Navbar({ activePage, setActivePage }) {
                   borderRadius: '20px',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  color: '#334155'
+                  color: '#334155',
+                  cursor: 'pointer'
                 }}
+                title="View Profile"
+                id="btn-nav-profile-pill"
               >
                 <User size={15} />
                 <span>{user.name.split(' ')[0]}</span>
                 <span className={`badge ${user.role === 'repairer' ? 'badge-accepted' : 'badge-role'}`} style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
                   {user.role}
                 </span>
-              </div>
+              </button>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="btn btn-secondary btn-sm"
-                title="Sign out"
+                title="Sign out of RepairHub"
                 id="btn-logout"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
+                <span>Logout</span>
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <button
-                onClick={() => navigateTo('repairer-login')}
-                className="btn btn-secondary btn-sm"
-                id="btn-nav-tech-login"
+                onClick={() => navigateTo('login')}
+                className={`btn btn-secondary btn-sm ${activePage === 'login' ? 'active' : ''}`}
+                id="btn-nav-signin"
               >
-                <ShieldCheck size={14} /> Repairer Portal
+                <LogIn size={14} /> Sign In
               </button>
               <button
-                onClick={() => navigateTo('request')}
+                onClick={() => navigateTo('register')}
                 className="btn btn-primary btn-sm"
-                id="btn-nav-book-repair"
+                id="btn-nav-register"
               >
-                Book a Repair <ArrowRight size={14} />
+                <UserPlus size={14} /> Create Account
               </button>
             </div>
           )}
@@ -174,23 +185,62 @@ export default function Navbar({ activePage, setActivePage }) {
           >
             <Sparkles size={15} color="#0284c7" /> AI Diagnostic Assistant
           </button>
-          {user && (
-            <button
-              onClick={() => navigateTo('customer-profile')}
-              className={`nav-link ${activePage === 'customer-profile' ? 'active' : ''}`}
-              style={{ width: '100%', textAlign: 'left' }}
-            >
-              My Repairs
-            </button>
-          )}
-          {isRepairer && (
-            <button
-              onClick={() => navigateTo('repairer-dashboard')}
-              className={`nav-link ${activePage === 'repairer-dashboard' ? 'active' : ''}`}
-              style={{ width: '100%', textAlign: 'left', color: '#2563eb', fontWeight: 700 }}
-            >
-              <ShieldCheck size={16} /> Technician Hub
-            </button>
+
+          {user ? (
+            <>
+              <button
+                onClick={() => navigateTo('customer-profile')}
+                className={`nav-link ${activePage === 'customer-profile' ? 'active' : ''}`}
+                style={{ width: '100%', textAlign: 'left' }}
+              >
+                My Repairs ({user.name})
+              </button>
+              {isRepairer && (
+                <button
+                  onClick={() => navigateTo('repairer-dashboard')}
+                  className={`nav-link ${activePage === 'repairer-dashboard' ? 'active' : ''}`}
+                  style={{ width: '100%', textAlign: 'left', color: '#2563eb', fontWeight: 700 }}
+                >
+                  <ShieldCheck size={16} /> Technician Hub
+                </button>
+              )}
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-secondary btn-sm"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                  id="btn-mobile-logout"
+                >
+                  <LogOut size={15} /> Sign Out ({user.email})
+                </button>
+              </div>
+            </>
+          ) : (
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem', marginTop: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <button
+                onClick={() => navigateTo('login')}
+                className="btn btn-secondary btn-sm"
+                style={{ width: '100%', justifyContent: 'center' }}
+                id="btn-mobile-signin"
+              >
+                <LogIn size={15} /> Sign In
+              </button>
+              <button
+                onClick={() => navigateTo('register')}
+                className="btn btn-primary btn-sm"
+                style={{ width: '100%', justifyContent: 'center' }}
+                id="btn-mobile-register"
+              >
+                <UserPlus size={15} /> Create an Account
+              </button>
+              <button
+                onClick={() => navigateTo('repairer-login')}
+                className="btn btn-secondary btn-sm"
+                style={{ width: '100%', justifyContent: 'center', fontSize: '0.8rem', color: '#64748b' }}
+              >
+                <ShieldCheck size={14} /> Technician Portal Access
+              </button>
+            </div>
           )}
         </div>
       )}

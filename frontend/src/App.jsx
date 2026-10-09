@@ -8,6 +8,8 @@ import RequestRepairPage from './pages/RequestRepairPage';
 import TrackRepairPage from './pages/TrackRepairPage';
 import AiAssistantPage from './pages/AiAssistantPage';
 import CustomerProfilePage from './pages/CustomerProfilePage';
+import SignInPage from './pages/SignInPage';
+import RegisterPage from './pages/RegisterPage';
 import RepairerLoginPage from './pages/RepairerLoginPage';
 import RepairerDashboardPage from './pages/RepairerDashboardPage';
 import RepairerProfilePage from './pages/RepairerProfilePage';
@@ -18,7 +20,7 @@ function AppContent() {
   const [trackingIdInput, setTrackingIdInput] = useState('');
   const [initialProblem, setInitialProblem] = useState('');
 
-  const { isRepairer, user } = useAuth();
+  const { isRepairer, user, loading } = useAuth();
 
   const handleCategoryFromFooterOrLanding = (catName) => {
     setSelectedCategory(catName);
@@ -68,23 +70,60 @@ function AppContent() {
           />
         )}
 
-        {activePage === 'customer-profile' && (
-          <CustomerProfilePage
+        {activePage === 'login' && (
+          <SignInPage
             setActivePage={handlePageChange}
-            setTrackingIdInput={setTrackingIdInput}
           />
         )}
 
+        {activePage === 'register' && (
+          <RegisterPage
+            setActivePage={handlePageChange}
+          />
+        )}
+
+        {/* Protected Customer Profile Route */}
+        {activePage === 'customer-profile' && (
+          user ? (
+            <CustomerProfilePage
+              setActivePage={handlePageChange}
+              setTrackingIdInput={setTrackingIdInput}
+            />
+          ) : (
+            <SignInPage
+              setActivePage={handlePageChange}
+              redirectAfterLogin="customer-profile"
+            />
+          )
+        )}
+
+        {/* Technician Login & Registration Portal */}
         {activePage === 'repairer-login' && (
           <RepairerLoginPage setActivePage={handlePageChange} />
         )}
 
+        {/* Protected Technician Dashboard Route */}
         {activePage === 'repairer-dashboard' && (
-          <RepairerDashboardPage setActivePage={handlePageChange} />
+          isRepairer ? (
+            <RepairerDashboardPage setActivePage={handlePageChange} />
+          ) : (
+            <SignInPage
+              setActivePage={handlePageChange}
+              redirectAfterLogin="repairer-dashboard"
+            />
+          )
         )}
 
+        {/* Protected Technician Profile Route */}
         {activePage === 'repairer-profile' && (
-          <RepairerProfilePage setActivePage={handlePageChange} />
+          isRepairer ? (
+            <RepairerProfilePage setActivePage={handlePageChange} />
+          ) : (
+            <SignInPage
+              setActivePage={handlePageChange}
+              redirectAfterLogin="repairer-profile"
+            />
+          )
         )}
       </main>
 
