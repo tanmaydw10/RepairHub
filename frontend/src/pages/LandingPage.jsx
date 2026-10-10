@@ -106,20 +106,19 @@ export default function LandingPage({ setActivePage, setSelectedCategory, setTra
   useEffect(() => {
     async function fetchPageData() {
       try {
-        const [reviewsRes, statsRes] = await Promise.allSettled([
-          api.reviews.list(),
-          api.repairer.getStats()
-        ]);
-
-        if (reviewsRes.status === 'fulfilled' && reviewsRes.value?.success && reviewsRes.value?.data) {
-          setReviews(reviewsRes.value.data);
-        }
-
-        if (statsRes.status === 'fulfilled' && statsRes.value?.success && statsRes.value?.stats) {
-          setPlatformStats(getPlatformStats(statsRes.value.stats));
+        const reviewsRes = await api.reviews.list();
+        if (reviewsRes && reviewsRes.success && reviewsRes.data) {
+          setReviews(reviewsRes.data);
+          // Dynamically compute live customer rating from verified reviews for public platform highlights
+          if (reviewsRes.data.length > 0) {
+            const avgRating = (
+              reviewsRes.data.reduce((acc, curr) => acc + curr.rating, 0) / reviewsRes.data.length
+            ).toFixed(1);
+            setPlatformStats(getPlatformStats({ averageRating: avgRating }));
+          }
         }
       } catch (err) {
-        console.warn('Could not fetch landing page data:', err.message);
+        console.warn('Could not fetch landing page reviews:', err.message);
       }
     }
     fetchPageData();

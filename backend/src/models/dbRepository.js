@@ -285,7 +285,8 @@ export const requestRepository = {
       for (const [key, val] of Object.entries(updates)) {
         if (key !== 'id') {
           fields.push(`${key} = $${idx}`);
-          values.push(val);
+          const finalVal = (key === 'preferred_date' && val === '') ? null : val;
+          values.push(finalVal);
           idx++;
         }
       }

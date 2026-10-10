@@ -110,7 +110,11 @@ export default function RepairerDashboardPage({ setActivePage }) {
           estimated_cost: res.data.estimated_cost !== null ? res.data.estimated_cost : '',
           repairer_name: res.data.repairer_name || user?.name || '',
           repair_notes: res.data.repair_notes || '',
-          preferred_date: res.data.preferred_date ? res.data.preferred_date.split('T')[0] : '',
+          preferred_date: res.data.preferred_date
+            ? (typeof res.data.preferred_date === 'string'
+                ? (res.data.preferred_date.includes('T') ? res.data.preferred_date.split('T')[0] : res.data.preferred_date.slice(0, 10))
+                : (res.data.preferred_date instanceof Date ? res.data.preferred_date.toISOString().split('T')[0] : ''))
+            : '',
           preferred_time: res.data.preferred_time || '',
           status_note: ''
         });

@@ -96,16 +96,23 @@ app.use('/api/repairer', repairerRoutes);
 app.use(errorHandler);
 
 // Start Server
-async function startServer() {
+export async function startServer() {
   await initDb();
   
-  app.listen(PORT, '0.0.0.0', () => {
+  return app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 RepairHub API Server running on port ${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`🔒 Mode: ${process.env.NODE_ENV || 'development'}`);
   });
 }
 
-startServer();
+const isDirectRun = process.argv[1] && (
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) ||
+  path.basename(process.argv[1]) === 'server.js'
+);
+
+if (isDirectRun) {
+  startServer();
+}
 
 export default app;

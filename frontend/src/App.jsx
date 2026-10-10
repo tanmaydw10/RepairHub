@@ -84,7 +84,12 @@ function AppContent() {
 
         {/* Protected Customer Profile Route */}
         {activePage === 'customer-profile' && (
-          user ? (
+          loading ? (
+            <div style={{ textAlign: 'center', padding: '5rem 1.5rem', color: '#64748b' }}>
+              <div className="spinner" style={{ width: '28px', height: '28px', border: '3px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite', marginBottom: '1rem' }} />
+              <div>Loading your account...</div>
+            </div>
+          ) : user ? (
             <CustomerProfilePage
               setActivePage={handlePageChange}
               setTrackingIdInput={setTrackingIdInput}
@@ -104,7 +109,12 @@ function AppContent() {
 
         {/* Protected Technician Dashboard Route */}
         {activePage === 'repairer-dashboard' && (
-          isRepairer ? (
+          loading ? (
+            <div style={{ textAlign: 'center', padding: '5rem 1.5rem', color: '#64748b' }}>
+              <div className="spinner" style={{ width: '28px', height: '28px', border: '3px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite', marginBottom: '1rem' }} />
+              <div>Verifying technician session...</div>
+            </div>
+          ) : isRepairer ? (
             <RepairerDashboardPage setActivePage={handlePageChange} />
           ) : (
             <SignInPage
@@ -116,7 +126,12 @@ function AppContent() {
 
         {/* Protected Technician Profile Route */}
         {activePage === 'repairer-profile' && (
-          isRepairer ? (
+          loading ? (
+            <div style={{ textAlign: 'center', padding: '5rem 1.5rem', color: '#64748b' }}>
+              <div className="spinner" style={{ width: '28px', height: '28px', border: '3px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite', marginBottom: '1rem' }} />
+              <div>Verifying technician session...</div>
+            </div>
+          ) : isRepairer ? (
             <RepairerProfilePage setActivePage={handlePageChange} />
           ) : (
             <SignInPage
